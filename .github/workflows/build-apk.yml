@@ -1,0 +1,11 @@
+name: Build Android APK (CI)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Note
+        run: echo "APK is built locally and uploaded via gh release upload. This workflow is a placeholder."
