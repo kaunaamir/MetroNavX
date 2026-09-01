@@ -1,6 +1,6 @@
 
 
-Metroway Delhi Metro is a premium, feature-rich Progressive Web App (PWA) designed to calculate optimal paths across the Delhi Metro network. It operates entirely offline after the initial load, utilizing an aggressive caching strategy for application assets and Leaflet map tiles.
+MetroNavX Delhi Metro is a premium, feature-rich App designed to calculate optimal paths across the Delhi Metro network. It operates entirely offline after the initial load, utilizing an aggressive caching strategy for application assets and Leaflet map tiles.
 
 
 ## 🌟 Key Features
