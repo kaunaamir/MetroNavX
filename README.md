@@ -1,6 +1,4 @@
-# Metroway Delhi Metro 🚇 - Offline-First Metro Navigation App
 
-**Live Webapp URL:** [https://mandy321.github.io/Metroway-Delhi-Metro/](https://mandy321.github.io/Metroway-Delhi-Metro/)
 
 Metroway Delhi Metro is a premium, feature-rich Progressive Web App (PWA) designed to calculate optimal paths across the Delhi Metro network. It operates entirely offline after the initial load, utilizing an aggressive caching strategy for application assets and Leaflet map tiles.
 
@@ -68,42 +66,6 @@ $$\text{Cost} = (W_{\text{time}} \times \text{time}) + (W_{\text{crowd}} \times 
 
 ---
 
-## 🚀 Setup & Installation
-
-### Prerequisites
-Make sure you have Node.js (v18+) and npm installed.
-
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Run Locally in Dev Mode
-```bash
-npm run dev
-```
-Open `http://localhost:3000` in your web browser.
-
-### 3. Build for Production
-```bash
-npm run build
-```
-This command compiles the project into the `dist/` directory, ready to be hosted on GitHub Pages or static hosting services.
-
----
-
-## 🔌 Cloudflare Worker Proxy
-The project includes a mock DMRC scraper proxy designed to run on Cloudflare Workers.
-To run the worker in development:
-```bash
-npx wrangler dev
-```
-To deploy the worker to production:
-```bash
-npx wrangler deploy
-```
-
----
 
 ## 📱 Mobile Application (React Native / Expo Router)
 The repository contains a fully-fledged native mobile application located in the `mobile/` directory. Built using Expo Router and React Native, it shares the offline routing engine logic with the Web app, but is optimized for handheld devices with a native map view, custom tab navigation, and gesture-driven panels.
@@ -145,6 +107,6 @@ This application requires **no premium API keys** (like Mapbox or Google Maps). 
 ---
 
 ## 🛡️ License & Copyright
-Copyright © 2026 Metroway (Mandeep). All rights reserved.
+Copyright © 2026 MetroNavX (Aamir). All rights reserved.
 
 This project is proprietary and confidential. Unauthorized copying, distribution, modification, reverse engineering, publishing on public marketplaces/app stores, or commercial usage of this source code and compiled binaries is strictly prohibited.
