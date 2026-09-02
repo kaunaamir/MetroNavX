@@ -1,112 +1,224 @@
+# 🚇 MetroNavX — Delhi Metro
 
+**MetroNavX** is a feature-rich Delhi Metro navigation application designed to calculate optimized routes across the metro network. It follows an **offline-first architecture**, aggressively caching application assets and map tiles so that core functionality remains available without an active internet connection after the initial load.
 
-MetroNavX Delhi Metro is a premium, feature-rich App designed to calculate optimal paths across the Delhi Metro network. It operates entirely offline after the initial load, utilizing an aggressive caching strategy for application assets and Leaflet map tiles.
+## 🌟 Features
 
+* **🧭 Smart Route Planning**
+  Modified Dijkstra's algorithm with four routing modes:
 
-## 🌟 Key Features
-- **Smart Path Routing:** Uses a modified Dijkstra's algorithm supporting 4 routing modes (Balanced, Fastest, Least Crowd, Women's Safety) with an added +5 mins line interchange penalty for realistic travel estimation.
-- **Aggressive Offline Caching:** Service worker intercepts CartoDB / OpenStreetMap tile requests and caches them dynamically, enabling full offline mapping capabilities.
-- **Smart Exit Recommender:** Suggests the safest and most convenient exit gates based on lighting levels and accessibility configurations.
-- **Live Outage Feed:** Periodic mock updates (built to sync with a Cloudflare Worker scraper) track real-time escalator/elevator statuses across stations.
+  * Balanced
+  * Fastest
+  * Least Crowd
+  * Women's Safety
+
+* **📴 Offline-First Architecture**
+  Custom service worker dynamically caches application assets and CartoDB / OpenStreetMap map tiles for offline use.
+
+* **🚪 Smart Exit Recommendations**
+  Recommends convenient and safer station exits based on lighting, accessibility, and available facilities.
+
+* **📡 Facility Status**
+  Tracks escalator and elevator availability through periodically updated status data, with architecture designed for integration with a Cloudflare Worker scraper.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
-- **Frontend:** React 18 + Vite (configured with Tailwind CSS v3)
-- **Map:** React-Leaflet + Leaflet.js (CartoDB Dark Matter tile server)
-- **State & Storage:** Zustand + LocalStorage Persistence
-- **Service Worker:** Custom dynamic worker (`sw.js`)
-- **API Stub:** Cloudflare Workers wrangler environment
+## 🛠️ Tech Stack
+
+### Web
+
+* **React 18**
+* **Vite**
+* **Tailwind CSS v3**
+* **React-Leaflet / Leaflet.js**
+* **Zustand**
+* **LocalStorage**
+* **Service Workers**
+* **Cloudflare Workers**
+
+### Mobile
+
+* **React Native**
+* **Expo Router**
+* **react-native-maps**
+* Shared offline routing logic with the web application
 
 ---
 
-## 📁 File Structure
-```
+## 🧠 Routing Engine
+
+MetroNavX uses a modified **Dijkstra's shortest-path algorithm** that dynamically calculates route costs according to the user's selected preferences.
+
+### Cost Function
+
+$$
+\text{Cost} =
+(W_{\text{time}} \times \text{time}) +
+(W_{\text{crowd}} \times \text{crowd}) +
+(W_{\text{comfort}} \times \text{comfort}) +
+(W_{\text{safety}} \times (10-\text{safety}))
+$$
+
+### Routing Modes
+
+| Mode               | Time | Crowd | Comfort | Safety |
+| ------------------ | ---: | ----: | ------: | -----: |
+| **Balanced**       | 0.40 |  0.30 |    0.20 |   0.10 |
+| **Fastest**        | 0.80 |  0.06 |    0.06 |   0.06 |
+| **Least Crowd**    | 0.06 |  0.80 |    0.06 |   0.06 |
+| **Women's Safety** | 0.06 |  0.06 |    0.06 |   0.80 |
+
+### 🔄 Interchange Handling
+
+When changing metro lines at an interchange station, the routing engine applies an additional penalty to better represent real-world transfers:
+
+* **+5 minutes** estimated transfer time
+* **+2 comfort penalty**
+
+This helps prevent routes with multiple interchanges from being unrealistically favored based solely on travel time.
+
+---
+
+## 📁 Project Structure
+
+```text
 ├── public/
-│   ├── manifest.json       # PWA Application Manifest
-│   └── sw.js               # Service Worker (Caches code & map tiles)
+│   ├── manifest.json
+│   └── sw.js
+│
 ├── src/
 │   ├── components/
-│   │   ├── Navbar.jsx      # Brand bar & connection status monitors
-│   │   ├── SearchPanel.jsx # Fuzzy autocompletes, mode grids, accessibility switches
-│   │   ├── MapView.jsx     # Glowing interactive Leaflet Map & legend
-│   │   └── RouteDetails.jsx# Journey metrics, timeline, and exit suggestions
+│   │   ├── Navbar.jsx
+│   │   ├── SearchPanel.jsx
+│   │   ├── MapView.jsx
+│   │   └── RouteDetails.jsx
+│   │
 │   ├── data/
-│   │   └── metroData.js    # 20 real Delhi Metro stations dataset with connections
+│   │   └── metroData.js
+│   │
 │   ├── store/
-│   │   └── useMetroStore.js# Zustand store with persistence
+│   │   └── useMetroStore.js
+│   │
 │   ├── utils/
-│   │   └── router.js       # Modified Dijkstra's Algorithm
-│   ├── App.jsx             # App layout and state-init hook
-│   ├── index.css           # Styling sheet with glassmorphic presets & keyframes
-│   └── main.jsx            # Mounting script
-├── wrangler.toml           # Cloudflare Worker configuration
-├── worker.js               # Cloudflare Worker scraping stub
-├── tailwind.config.js      # Tailwind theme adjustments
-├── postcss.config.js       # PostCSS config
-├── vite.config.js          # Vite config
-├── package.json            # Scripts and dependencies
-└── README.md               # User documentation
+│   │   └── router.js
+│   │
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+│
+├── mobile/
+│   └── ...
+│
+├── wrangler.toml
+├── worker.js
+├── tailwind.config.js
+├── postcss.config.js
+├── vite.config.js
+├── package.json
+└── README.md
 ```
 
 ---
 
-## 🧮 Custom Routing Engine
-The algorithm evaluates edges dynamically based on user preferences. Costs are calculated using:
+# 📱 Mobile Application
 
-$$\text{Cost} = (W_{\text{time}} \times \text{time}) + (W_{\text{crowd}} \times \text{crowd}) + (W_{\text{comfort}} \times \text{comfort}) + (W_{\text{safety}} \times (10 - \text{safety}))$$
+The repository also contains a native mobile application inside the `mobile/` directory.
 
-### Dynamic Mode Weights:
-- **Balanced (Default):** Time: 0.4, Crowd: 0.3, Comfort: 0.2, Safety: 0.1
-- **Fastest:** Time: 0.8, others: 0.06
-- **Least Crowd:** Crowd: 0.8, others: 0.06
-- **Women's Safety:** Safety: 0.8, others: 0.06
+Built with **React Native + Expo Router**, the mobile application shares the core offline routing logic with the web version while providing a native, mobile-optimized experience.
 
-*An additional transfer penalty (+5 minutes walk, +2 comfort penalty) is calculated whenever the active metro line changes at interchange hubs.*
+### Mobile Highlights
 
----
+* 🗺️ **Native Routing Map**
 
+  * `react-native-maps`
+  * High-contrast route rendering
+  * Automatic camera fitting for calculated routes
 
-## 📱 Mobile Application (React Native / Expo Router)
-The repository contains a fully-fledged native mobile application located in the `mobile/` directory. Built using Expo Router and React Native, it shares the offline routing engine logic with the Web app, but is optimized for handheld devices with a native map view, custom tab navigation, and gesture-driven panels.
+* 🧭 **Tabbed Journey Planner**
 
-### Mobile Features:
-- **Native Routing Map**: Utilizes native maps (`react-native-maps`) to draw high-contrast routes with black border backgrounds under colored foreground lines.
-- **Auto-Zoom Camera**: Intelligently frames calculated routes on the map.
-- **Tabbed Journey Planner**: A gorgeous panel showing:
-  - **Timeline**: Color-coded metro route transitions, platform numbers, transfers, and station list.
-  - **Fare Breakdown**: Compares Single Journey Tokens vs. Metro Smart Cards with exact savings percentages.
-  - **Exit Recommender**: Suggests optimal exit gates based on accessibility and lighting features.
-  - **Facility Status & Outages**: Real-time status table of lifts/escalators and custom crowd reporting forms.
-- **Station Explorer Directory**: Shows complete list of station exits with dedicated accessibility icon tags (Escalators, Elevators, Wheelchair Ramps, Tactile Paths).
+  * Route timeline
+  * Metro line transitions
+  * Platform information
+  * Transfer details
+  * Fare comparison
+  * Exit recommendations
+  * Facility status
+  * Crowd reporting
 
-### Building the Mobile App Locally:
-1. Navigate to the mobile directory:
-   ```bash
-   cd mobile
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npx expo start
-   ```
-4. Build the Production Release APK (Android) locally:
-   ```bash
-   cd android && chmod +x gradlew && ./gradlew assembleRelease
-   ```
-   The compiled APK will be generated at `mobile/android/app/build/outputs/apk/release/app-release.apk`.
+* 🚉 **Station Explorer**
+
+  * Station directory
+  * Exit information
+  * Accessibility indicators
+  * Elevators
+  * Escalators
+  * Wheelchair ramps
+  * Tactile paths
 
 ---
 
-## 🔐 Zero-Key Notice
-This application requires **no premium API keys** (like Mapbox or Google Maps). Leaflet / native maps load tiles and routing data from free public servers and local offline configurations, making it lightweight and unrestricted.
+## ⚙️ Running the Mobile App
+
+```bash
+cd mobile
+npm install
+npx expo start
+```
+
+### Build Android APK
+
+```bash
+cd android
+chmod +x gradlew
+./gradlew assembleRelease
+```
+
+The release APK will be generated at:
+
+```text
+mobile/android/app/build/outputs/apk/release/app-release.apk
+```
 
 ---
 
-## 🛡️ License & Copyright
-Copyright © 2026 MetroNavX (Aamir). All rights reserved.
+## 📴 Offline Architecture
 
-This project is proprietary and confidential. Unauthorized copying, distribution, modification, reverse engineering, publishing on public marketplaces/app stores, or commercial usage of this source code and compiled binaries is strictly prohibited.
+MetroNavX is designed around an **offline-first approach**.
+
+The application uses:
+
+* Local routing data
+* LocalStorage persistence
+* Service-worker caching
+* Dynamically cached map tiles
+* Client-side route calculation
+
+Once required assets and map tiles have been cached, the application can continue to provide core routing and mapping functionality without an active connection.
+
+---
+
+## 🔐 Zero-Key Architecture
+
+MetroNavX does **not require premium API keys** such as Mapbox or Google Maps credentials.
+
+The project relies on:
+
+* Leaflet
+* OpenStreetMap-based infrastructure
+* CartoDB map tiles
+* Local routing data
+* Client-side caching
+
+This keeps the application lightweight and avoids mandatory paid API dependencies.
+
+> **Note:** Public map services remain subject to their respective usage policies and availability.
+
+---
+
+## 📜 License
+
+**Copyright © 2026 MetroNavX (Aamir). All Rights Reserved.**
+
+This project is **proprietary and confidential**.
+
+Unauthorized copying, distribution, modification, reverse engineering, republishing, commercial usage, or redistribution of the source code or compiled binaries is strictly prohibited without prior written permission from the copyright holder.
